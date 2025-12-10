@@ -1,0 +1,23 @@
+[
+  {
+    "id": "1757492639930",
+    "name": "Fareinheits",
+    "key": "ak_Hqn3XCv7UEKLD4gT",
+    "description": "r67890",
+    "category": "Розробка",
+    "createdAt": "2025-09-10T08:23:59.930Z",
+    "isActive": true,
+    "permissions": []
+  },
+  {
+    "id": "1757493389186",
+    "name": "nihouiytdtypoi[",
+    "key": "emxhOHlnNGlFgGZMd1RQdVJXY4uPS2l8TkxVZzpSZnN3VFmANDQ0TU42NjY2NQ==",
+    "description": "",
+    "category": "Розробка",
+    "createdAt": "2025-09-10T08:36:29.186Z",
+    "isActive": true,
+    "permissions": [],
+    "encrypted": true
+  }
+]
