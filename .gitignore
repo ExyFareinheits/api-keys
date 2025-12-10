@@ -5,6 +5,7 @@ node_modules/
 
 # Testing
 coverage/
+*.test.js.snap
 
 # Next.js
 .next/
@@ -34,7 +35,6 @@ yarn-error.log*
 
 # TypeScript
 *.tsbuildinfo
-next-env.d.ts
 
 # IDE
 .vscode/
@@ -42,3 +42,6 @@ next-env.d.ts
 *.swp
 *.swo
 *~
+
+# Data files (optional - remove if you want to track them)
+# data/*.json

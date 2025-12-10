@@ -3,6 +3,7 @@ import { promises as fs } from 'fs'
 import path from 'path'
 import { ApiKey } from '@/types'
 import { generateApiKey } from '@/utils/apiKeyUtils'
+import { logAudit } from '@/utils/auditLogger'
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'api_keys.json')
 
@@ -61,6 +62,10 @@ export async function POST(request: NextRequest) {
     keys.push(newKey)
     await writeKeys(keys)
 
+    // Log audit
+    const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    await logAudit('system', 'create_key', 'ApiKey', newKey.id, ipAddress, { name, category });
+
     return NextResponse.json(newKey, { status: 201 })
   } catch (error) {
     console.error('Error creating key:', error)
@@ -87,6 +92,10 @@ export async function PUT(request: NextRequest) {
     keys[keyIndex] = { ...keys[keyIndex], ...updates }
     await writeKeys(keys)
 
+    // Log audit
+    const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    await logAudit('system', 'update_key', 'ApiKey', id, ipAddress, { updates });
+
     return NextResponse.json(keys[keyIndex])
   } catch (error) {
     console.error('Error updating key:', error)
@@ -111,6 +120,11 @@ export async function DELETE(request: NextRequest) {
     }
 
     await writeKeys(filteredKeys)
+
+    // Log audit
+    const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    await logAudit('system', 'delete_key', 'ApiKey', id, ipAddress);
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error deleting key:', error)
