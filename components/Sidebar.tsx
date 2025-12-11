@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { 
@@ -22,7 +22,12 @@ const navigation = [
 
 export default function Sidebar({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [currentTime, setCurrentTime] = useState<string>('')
   const pathname = usePathname()
+
+  useEffect(() => {
+    setCurrentTime(new Date().toLocaleString('uk-UA'))
+  }, [])
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -97,7 +102,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
             </button>
             <div className="flex items-center space-x-4">
               <div className="text-sm text-gray-500">
-                Останнє оновлення: {new Date().toLocaleString('uk-UA')}
+                {currentTime && `Останнє оновлення: ${currentTime}`}
               </div>
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Sidebar from '@/components/Sidebar'
-import { ApiKey, ApiKeyFormData } from '@/types'
+import { ApiKey, ApiKeyFormData, Category } from '@/types'
 import { maskApiKey, copyToClipboard, formatDate, generateApiKey } from '@/utils/apiKeyUtils'
 import { encryptionService } from '@/utils/encryptionService'
 import { 
@@ -24,8 +24,10 @@ import {
 
 export default function KeysPage() {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [filteredKeys, setFilteredKeys] = useState<ApiKey[]>([])
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [editingKey, setEditingKey] = useState<ApiKey | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(new Set())
@@ -33,11 +35,24 @@ export default function KeysPage() {
 
   useEffect(() => {
     loadApiKeys()
+    loadCategories()
   }, [])
 
   useEffect(() => {
     filterKeys()
   }, [apiKeys, searchTerm, categoryFilter])
+
+  const loadCategories = async () => {
+    try {
+      const response = await fetch('/api/categories')
+      if (response.ok) {
+        const data = await response.json()
+        setCategories(data)
+      }
+    } catch (error) {
+      console.error('Error loading categories:', error)
+    }
+  }
 
   const loadApiKeys = async () => {
     try {
@@ -116,6 +131,29 @@ export default function KeysPage() {
     }
   }
 
+  const handleUpdateKey = async (formData: ApiKeyFormData) => {
+    if (!editingKey) return
+
+    try {
+      const response = await fetch('/api/keys', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: editingKey.id, ...formData })
+      })
+
+      if (response.ok) {
+        await loadApiKeys()
+        setEditingKey(null)
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Помилка при оновленні ключа')
+      }
+    } catch (error) {
+      console.error('Error updating key:', error)
+      alert('Помилка при оновленні ключа')
+    }
+  }
+
   const handleToggleActive = async (key: ApiKey) => {
     try {
       const response = await fetch('/api/keys', {
@@ -162,13 +200,6 @@ export default function KeysPage() {
       alert('Ключ скопійовано в буфер обміну!');
     }
   };
-
-  const categories = apiKeys.reduce((acc: string[], key) => {
-    if (!acc.includes(key.category)) {
-      acc.push(key.category);
-    }
-    return acc;
-  }, []);
 
   if (loading) {
     return (
@@ -221,7 +252,7 @@ export default function KeysPage() {
               >
                 <option value="">Всі категорії</option>
                 {categories.map(category => (
-                  <option key={category} value={category}>{category}</option>
+                  <option key={category.id} value={category.name}>{category.name}</option>
                 ))}
               </select>
             </div>
@@ -322,7 +353,10 @@ export default function KeysPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end space-x-2">
-                          <button className="text-blue-600 hover:text-blue-900">
+                          <button 
+                            onClick={() => setEditingKey(key)}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
                             <Edit2 className="h-4 w-4" />
                           </button>
                           <button 
@@ -356,6 +390,17 @@ export default function KeysPage() {
           categories={categories}
         />
       )}
+
+      {/* Edit Key Modal */}
+      {editingKey && (
+        <EditKeyModal
+          key={editingKey.id}
+          apiKey={editingKey}
+          onClose={() => setEditingKey(null)}
+          onSubmit={handleUpdateKey}
+          categories={categories}
+        />
+      )}
     </Sidebar>
   )
 }
@@ -367,12 +412,12 @@ function CreateKeyModal({
 }: { 
   onClose: () => void
   onSubmit: (data: ApiKeyFormData) => void
-  categories: string[]
+  categories: Category[]
 }) {
   const [formData, setFormData] = useState<ApiKeyFormData>({
     name: '',
     description: '',
-    category: categories[0] || 'Розробка',
+    category: categories[0]?.name || 'Розробка',
     keyLength: 32
   })
 
@@ -444,7 +489,7 @@ function CreateKeyModal({
                 className="input"
               >
                 {categories.length > 0 ? categories.map(category => (
-                  <option key={category} value={category}>{category}</option>
+                  <option key={category.id} value={category.name}>{category.name}</option>
                 )) : (
                   <option value="Розробка">Розробка</option>
                 )}
@@ -503,6 +548,118 @@ function CreateKeyModal({
               className="btn btn-primary"
             >
               Створити ключ
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function EditKeyModal({ 
+  apiKey,
+  onClose, 
+  onSubmit, 
+  categories 
+}: { 
+  apiKey: ApiKey
+  onClose: () => void
+  onSubmit: (data: ApiKeyFormData) => void
+  categories: Category[]
+}) {
+  const [formData, setFormData] = useState<ApiKeyFormData>({
+    name: apiKey.name,
+    description: apiKey.description || '',
+    category: apiKey.category,
+    permissions: apiKey.permissions || [],
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    onSubmit(formData)
+  }
+
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Редагувати API ключ</h3>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Назва *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="input"
+                placeholder="Наприклад: Production API Key"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Опис
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="input"
+                rows={3}
+                placeholder="Опис призначення ключа (необов'язково)"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Категорія
+              </label>
+              <select
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="input"
+              >
+                {categories.length > 0 ? categories.map(category => (
+                  <option key={category.id} value={category.name}>{category.name}</option>
+                )) : (
+                  <option value="Розробка">Розробка</option>
+                )}
+              </select>
+            </div>
+
+            {/* Display Key (Read-only) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                API Ключ (не може бути змінений)
+              </label>
+              <input
+                type="text"
+                value={maskApiKey(apiKey.key)}
+                className="input bg-gray-50"
+                disabled
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Ключ не може бути змінений після створення з міркувань безпеки
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-3 mt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn btn-secondary"
+            >
+              Скасувати
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+            >
+              Зберегти зміни
             </button>
           </div>
         </form>

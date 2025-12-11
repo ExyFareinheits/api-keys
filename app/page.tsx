@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Sidebar from '@/components/Sidebar'
 import { ApiKey } from '@/types'
 import { 
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react'
 
 export default function Dashboard() {
+  const router = useRouter()
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([])
   const [stats, setStats] = useState({
     total: 0,
@@ -66,10 +68,6 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold text-gray-900">Дашборд</h1>
             <p className="text-gray-600 mt-1">Огляд ваших API ключів та статистики</p>
           </div>
-          <button className="btn btn-primary flex items-center space-x-2">
-            <Plus className="h-4 w-4" />
-            <span>Новий ключ</span>
-          </button>
         </div>
 
         {/* Stats Grid */}
@@ -170,25 +168,34 @@ export default function Dashboard() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="card hover:shadow-lg transition-shadow cursor-pointer">
+          <div 
+            onClick={() => router.push('/keys')}
+            className="card hover:shadow-lg transition-shadow cursor-pointer group"
+          >
             <div className="text-center">
-              <Plus className="h-8 w-8 text-blue-600 mx-auto mb-3" />
+              <Plus className="h-8 w-8 text-blue-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
               <h3 className="font-medium text-gray-900">Створити ключ</h3>
               <p className="text-sm text-gray-500 mt-1">Згенерувати новий API ключ</p>
             </div>
           </div>
 
-          <div className="card hover:shadow-lg transition-shadow cursor-pointer">
+          <div 
+            onClick={() => router.push('/categories')}
+            className="card hover:shadow-lg transition-shadow cursor-pointer group"
+          >
             <div className="text-center">
-              <TrendingUp className="h-8 w-8 text-green-600 mx-auto mb-3" />
+              <TrendingUp className="h-8 w-8 text-green-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
               <h3 className="font-medium text-gray-900">Аналітика</h3>
               <p className="text-sm text-gray-500 mt-1">Переглянути статистику використання</p>
             </div>
           </div>
 
-          <div className="card hover:shadow-lg transition-shadow cursor-pointer">
+          <div 
+            onClick={() => router.push('/settings')}
+            className="card hover:shadow-lg transition-shadow cursor-pointer group"
+          >
             <div className="text-center">
-              <Settings className="h-8 w-8 text-purple-600 mx-auto mb-3" />
+              <Settings className="h-8 w-8 text-purple-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
               <h3 className="font-medium text-gray-900">Налаштування</h3>
               <p className="text-sm text-gray-500 mt-1">Керування параметрами безпеки</p>
             </div>

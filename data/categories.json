@@ -1,0 +1,34 @@
+{
+  "categories": [
+    {
+      "id": "1",
+      "name": "Розробка",
+      "color": "#3B82F6",
+      "description": "API ключі для розробки"
+    },
+    {
+      "id": "2",
+      "name": "Продакшн",
+      "color": "#EF4444",
+      "description": "Продакшн API ключі"
+    },
+    {
+      "id": "3",
+      "name": "Тестування",
+      "color": "#10B981",
+      "description": "Тестові API ключі"
+    },
+    {
+      "id": "4",
+      "name": "Сторонні сервіси",
+      "color": "#F59E0B",
+      "description": "Зовнішні API"
+    },
+    {
+      "id": "1765486940048",
+      "name": "afdg",
+      "color": "#EF4444",
+      "description": "afgafg"
+    }
+  ]
+}

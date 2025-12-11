@@ -1,3 +1,44 @@
 {
-  "logs": []
+  "logs": [
+    {
+      "id": "4eeadcbc-37bc-4874-b98f-59e1fd221ea0",
+      "userId": "user123",
+      "action": "logout",
+      "resourceType": "User",
+      "resourceId": null,
+      "ipAddress": "192.168.1.1",
+      "timestamp": "2025-12-10T23:55:10.921Z",
+      "details": {}
+    },
+    {
+      "id": "83b48a46-ebb9-4efe-932a-2eebc8bfbab6",
+      "userId": "system",
+      "action": "create_key",
+      "resourceType": "ApiKey",
+      "resourceId": "1765486948470",
+      "ipAddress": "::1",
+      "timestamp": "2025-12-11T21:02:28.472Z",
+      "details": {
+        "name": "1453",
+        "category": "Розробка"
+      }
+    },
+    {
+      "id": "a035e792-0fa5-42a7-9ef2-8abf983bd8f5",
+      "userId": "system",
+      "action": "update_key",
+      "resourceType": "ApiKey",
+      "resourceId": "1757492639930",
+      "ipAddress": "::1",
+      "timestamp": "2025-12-11T21:07:01.451Z",
+      "details": {
+        "updates": {
+          "name": "Fareinheits1",
+          "description": "r67890",
+          "category": "Розробка",
+          "permissions": []
+        }
+      }
+    }
+  ]
 }
